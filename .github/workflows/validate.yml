@@ -1,0 +1,19 @@
+name: validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 -m unittest discover -s tests
+      - if: github.event_name == 'pull_request'
+        run: python3 scripts/catalog.py validate --base "origin/${{ github.base_ref }}"
+      - if: github.event_name == 'push'
+        run: python3 scripts/catalog.py validate
